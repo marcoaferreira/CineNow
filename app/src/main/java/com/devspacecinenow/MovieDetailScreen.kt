@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun MovieDetailScreen() {
+fun MovieDetailScreen(movieId: String) {
     MovieDetailContent()
 }
 
