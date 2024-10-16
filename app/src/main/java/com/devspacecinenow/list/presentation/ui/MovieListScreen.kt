@@ -1,6 +1,5 @@
 package com.devspacecinenow.list.presentation.ui
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -19,25 +18,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.devspacecinenow.ApiService
 import com.devspacecinenow.common.model.MovieDto
-import com.devspacecinenow.common.model.MovieResponse
-import com.devspacecinenow.common.data.RetrofitClient
 import com.devspacecinenow.list.presentation.MovieListViewModel
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 @Composable
 fun MovieListScreen(
@@ -55,7 +47,7 @@ fun MovieListScreen(
         topRatedMovies = topRatedMovies,
         upcomingMovies = upcomingMovies,
         popularMovies = popularMovies
-    ){itemClicked ->
+    ) { itemClicked ->
         navController.navigate(route = "movieDetail/${itemClicked.id}")
     }
 
@@ -63,11 +55,11 @@ fun MovieListScreen(
 
 @Composable
 fun MovieListContent(
-    nowPlayingMovies: List<MovieDto>,
+    nowPlayingMovies: MovieListUiState,
     topRatedMovies: List<MovieDto>,
     upcomingMovies: List<MovieDto>,
     popularMovies: List<MovieDto>,
-    onClick: (MovieDto) -> Unit
+    onClick: (MovieUiData) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -83,11 +75,11 @@ fun MovieListContent(
 
         MovieSession(
             label = "Now Playing",
-            movieList = nowPlayingMovies,
+            movieListUiState = nowPlayingMovies,
             onClick = onClick
         )
 
-        MovieSession(
+        /*MovieSession(
             label = "Top Rated",
             movieList = topRatedMovies,
             onClick = onClick
@@ -103,15 +95,15 @@ fun MovieListContent(
             label = "Popular",
             movieList = popularMovies,
             onClick = onClick
-        )
+        )*/
     }
 }
 
 
 @Composable
 private fun MovieList(
-    movieList: List<MovieDto>,
-    onClick: (MovieDto) -> Unit
+    movieList: List<MovieUiData>,
+    onClick: (MovieUiData) -> Unit
 ) {
     LazyRow {
         items(movieList) {
@@ -126,8 +118,8 @@ private fun MovieList(
 @Composable
 private fun MovieSession(
     label: String,
-    movieList: List<MovieDto>,
-    onClick: (MovieDto) -> Unit
+    movieListUiState: MovieListUiState,
+    onClick: (MovieUiData) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -140,14 +132,25 @@ private fun MovieSession(
             fontWeight = FontWeight.SemiBold
         )
         Spacer(modifier = Modifier.size(8.dp))
-        MovieList(movieList = movieList, onClick = onClick)
+
+        if (movieListUiState.isLoading) {
+
+        } else if (movieListUiState.isError) {
+            Text(
+                text = movieListUiState.errorMessage ?: "",
+                color = Color.Red,
+            )
+        } else {
+            MovieList(movieList = movieListUiState.list, onClick = onClick)
+        }
+
     }
 }
 
 @Composable
 private fun MovieItem(
-    movieDto: MovieDto,
-    onClick: (MovieDto) -> Unit
+    movieDto: MovieUiData,
+    onClick: (MovieUiData) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -162,7 +165,7 @@ private fun MovieItem(
                 .width(120.dp)
                 .height(150.dp),
             contentScale = ContentScale.Crop,
-            model = movieDto.posterFullPath,
+            model = movieDto.image,
             contentDescription = "${movieDto.title} Poster Image"
         )
         Spacer(modifier = Modifier.size(4.dp))
