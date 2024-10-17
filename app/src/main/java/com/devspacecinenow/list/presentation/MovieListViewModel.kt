@@ -1,13 +1,12 @@
 package com.devspacecinenow.list.presentation
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.devspacecinenow.common.data.RetrofitClient
-import com.devspacecinenow.common.model.MovieDto
 import com.devspacecinenow.list.data.ListService
+import com.devspacecinenow.list.data.MovieListRepository
 import com.devspacecinenow.list.presentation.ui.MovieListUiState
 import com.devspacecinenow.list.presentation.ui.MovieUiData
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +16,7 @@ import kotlinx.coroutines.launch
 import java.net.UnknownHostException
 
 class MovieListViewModel(
-    private val listService: ListService
+    private val repository: MovieListRepository
 ) : ViewModel() {
 
     private val _uiNowPlaying = MutableStateFlow<MovieListUiState>(MovieListUiState())
@@ -34,44 +33,38 @@ class MovieListViewModel(
 
     init {
         fetchNowPlayingMovies()
-          fetchTopRatedMovies()
-          fetchUpcomingMovies()
-          fetchPopularMovies()
+        fetchTopRatedMovies()
+        fetchUpcomingMovies()
+        fetchPopularMovies()
     }
 
     private fun fetchNowPlayingMovies() {
         _uiNowPlaying.value = MovieListUiState(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = listService.getNowPlayingMovies()
-                if (response.isSuccessful) {
-                    val movies = response.body()?.results
-                    if (movies != null) {
-                        val movieUiDataList = movies.map { movieDto ->
-                            MovieUiData(
-                                id = movieDto.id,
-                                title = movieDto.title,
-                                overview = movieDto.overview,
-                                image = movieDto.posterFullPath
-                            )
-                        }
-                        _uiNowPlaying.value = MovieListUiState(list = movieUiDataList)
+            val result = repository.getNowPlaying()
+            if (result.isSuccess) {
+                val movies = result.getOrNull()?.results
+                if (movies != null) {
+                    val movieUiDataList = movies.map { movieDto ->
+                        MovieUiData(
+                            id = movieDto.id,
+                            title = movieDto.title,
+                            overview = movieDto.overview,
+                            image = movieDto.posterFullPath
+                        )
                     }
-                } else {
-                    _uiNowPlaying.value = MovieListUiState(isError = true)
-                    Log.d("MovieListViewModel", "Request Error :: ${response.errorBody()}")
+                    _uiNowPlaying.value = MovieListUiState(list = movieUiDataList)
                 }
-            } catch (ex: Exception) {
-                ex.printStackTrace()
+            } else {
+                val ex = result.exceptionOrNull()
                 if (ex is UnknownHostException) {
-                    _uiNowPlaying.value = MovieListUiState(
+                    _uiTopRated.value = MovieListUiState(
                         isError = true,
                         errorMessage = "No internet connection"
                     )
                 } else {
-                    _uiNowPlaying.value = MovieListUiState(isError = true)
+                    _uiTopRated.value = MovieListUiState(isError = true)
                 }
-
             }
         }
     }
@@ -79,26 +72,22 @@ class MovieListViewModel(
     private fun fetchTopRatedMovies() {
         _uiTopRated.value = MovieListUiState(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = listService.getTopRatedMovies()
-                if (response.isSuccessful) {
-                    val movies = response.body()?.results
-                    if (movies != null) {
-                        val movieUiDataList = movies.map { movieDto ->
-                            MovieUiData(
-                                id = movieDto.id,
-                                title = movieDto.title,
-                                overview = movieDto.overview,
-                                image = movieDto.posterFullPath
-                            )
-                        }
-                        _uiTopRated.value = MovieListUiState(list = movieUiDataList)
+            val result = repository.getTopRated()
+            if (result.isSuccess) {
+                val movies = result.getOrNull()?.results
+                if (movies != null) {
+                    val movieUiDataList = movies.map { movieDto ->
+                        MovieUiData(
+                            id = movieDto.id,
+                            title = movieDto.title,
+                            overview = movieDto.overview,
+                            image = movieDto.posterFullPath
+                        )
                     }
-                } else {
-                    Log.d("MovieListViewModel", "Request Error :: ${response.errorBody()}")
+                    _uiTopRated.value = MovieListUiState(list = movieUiDataList)
                 }
-            } catch (ex: Exception) {
-                ex.printStackTrace()
+            } else {
+                val ex = result.exceptionOrNull()
                 if (ex is UnknownHostException) {
                     _uiTopRated.value = MovieListUiState(
                         isError = true,
@@ -114,26 +103,22 @@ class MovieListViewModel(
     private fun fetchUpcomingMovies() {
         _uiUpcoming.value = MovieListUiState(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = listService.getUpcomingMovies()
-                if (response.isSuccessful) {
-                    val movies = response.body()?.results
-                    if (movies != null) {
-                        val movieUiDataList = movies.map { movieDto ->
-                            MovieUiData(
-                                id = movieDto.id,
-                                title = movieDto.title,
-                                overview = movieDto.overview,
-                                image = movieDto.posterFullPath
-                            )
-                        }
-                        _uiUpcoming.value = MovieListUiState(list = movieUiDataList)
+            val result = repository.getUpcoming()
+            if (result.isSuccess) {
+                val movies = result.getOrNull()?.results
+                if (movies != null) {
+                    val movieUiDataList = movies.map { movieDto ->
+                        MovieUiData(
+                            id = movieDto.id,
+                            title = movieDto.title,
+                            overview = movieDto.overview,
+                            image = movieDto.posterFullPath
+                        )
                     }
-                } else {
-                    Log.d("MovieListViewModel", "Request Error :: ${response.errorBody()}")
+                    _uiUpcoming.value = MovieListUiState(list = movieUiDataList)
                 }
-            } catch (ex: Exception) {
-                ex.printStackTrace()
+            } else {
+                val ex = result.exceptionOrNull()
                 if (ex is UnknownHostException) {
                     _uiUpcoming.value = MovieListUiState(
                         isError = true,
@@ -146,29 +131,26 @@ class MovieListViewModel(
         }
     }
 
+
     private fun fetchPopularMovies() {
         _uiPopular.value = MovieListUiState(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = listService.getPopularMovies()
-                if (response.isSuccessful) {
-                    val movies = response.body()?.results
-                    if (movies != null) {
-                        val movieUiDataList = movies.map { movieDto ->
-                            MovieUiData(
-                                id = movieDto.id,
-                                title = movieDto.title,
-                                overview = movieDto.overview,
-                                image = movieDto.posterFullPath
-                            )
-                        }
-                        _uiPopular.value = MovieListUiState(list = movieUiDataList)
+            val result = repository.getPopular()
+            if (result.isSuccess) {
+                val movies = result.getOrNull()?.results
+                if (movies != null) {
+                    val movieUiDataList = movies.map { movieDto ->
+                        MovieUiData(
+                            id = movieDto.id,
+                            title = movieDto.title,
+                            overview = movieDto.overview,
+                            image = movieDto.posterFullPath
+                        )
                     }
-                } else {
-                    Log.d("MovieListViewModel", "Request Error :: ${response.errorBody()}")
+                    _uiPopular.value = MovieListUiState(list = movieUiDataList)
                 }
-            } catch (ex: Exception) {
-                ex.printStackTrace()
+            } else {
+                val ex = result.exceptionOrNull()
                 if (ex is UnknownHostException) {
                     _uiPopular.value = MovieListUiState(
                         isError = true,
@@ -178,17 +160,21 @@ class MovieListViewModel(
                     _uiPopular.value = MovieListUiState(isError = true)
                 }
             }
-
         }
     }
+
 
     companion object {
         val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-                val listService = RetrofitClient.retrofitInstance.create(ListService::class.java)
+            override fun <T : ViewModel> create(
+                modelClass: Class<T>,
+                extras: CreationExtras
+            ): T {
+                val listService =
+                    RetrofitClient.retrofitInstance.create(ListService::class.java)
                 return MovieListViewModel(
-                    listService
+                    repository = MovieListRepository(listService)
                 ) as T
             }
         }
