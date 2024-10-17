@@ -56,9 +56,9 @@ fun MovieListScreen(
 @Composable
 fun MovieListContent(
     nowPlayingMovies: MovieListUiState,
-    topRatedMovies: List<MovieDto>,
-    upcomingMovies: List<MovieDto>,
-    popularMovies: List<MovieDto>,
+    topRatedMovies: MovieListUiState,
+    upcomingMovies: MovieListUiState,
+    popularMovies: MovieListUiState,
     onClick: (MovieUiData) -> Unit
 ) {
     Column(
@@ -79,23 +79,23 @@ fun MovieListContent(
             onClick = onClick
         )
 
-        /*MovieSession(
+        MovieSession(
             label = "Top Rated",
-            movieList = topRatedMovies,
+            movieListUiState = topRatedMovies,
             onClick = onClick
         )
 
         MovieSession(
             label = "Upcoming",
-            movieList = upcomingMovies,
+            movieListUiState = upcomingMovies,
             onClick = onClick
         )
 
         MovieSession(
             label = "Popular",
-            movieList = popularMovies,
+            movieListUiState = popularMovies,
             onClick = onClick
-        )*/
+        )
     }
 }
 

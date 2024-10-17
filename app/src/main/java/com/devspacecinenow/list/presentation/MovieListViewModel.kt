@@ -18,28 +18,28 @@ import java.net.UnknownHostException
 
 class MovieListViewModel(
     private val listService: ListService
-): ViewModel() {
+) : ViewModel() {
 
     private val _uiNowPlaying = MutableStateFlow<MovieListUiState>(MovieListUiState())
     val uiNowPlaying: StateFlow<MovieListUiState> = _uiNowPlaying
 
-    private val _uiTopRated = MutableStateFlow<List<MovieDto>>(emptyList())
-    val uiTopRated: StateFlow<List<MovieDto>> = _uiTopRated
+    private val _uiTopRated = MutableStateFlow<MovieListUiState>(MovieListUiState())
+    val uiTopRated: StateFlow<MovieListUiState> = _uiTopRated
 
-    private val _uiUpcoming = MutableStateFlow<List<MovieDto>>(emptyList())
-    val uiUpcoming: StateFlow<List<MovieDto>> = _uiUpcoming
+    private val _uiUpcoming = MutableStateFlow<MovieListUiState>(MovieListUiState())
+    val uiUpcoming: StateFlow<MovieListUiState> = _uiUpcoming
 
-    private val _uiPopular = MutableStateFlow<List<MovieDto>>(emptyList())
-    val uiPopular: StateFlow<List<MovieDto>> = _uiPopular
+    private val _uiPopular = MutableStateFlow<MovieListUiState>(MovieListUiState())
+    val uiPopular: StateFlow<MovieListUiState> = _uiPopular
 
     init {
         fetchNowPlayingMovies()
-      /*  fetchTopRatedMovies()
-        fetchUpcomingMovies()
-        fetchPopularMovies()*/
+          fetchTopRatedMovies()
+          fetchUpcomingMovies()
+          fetchPopularMovies()
     }
 
-    private fun fetchNowPlayingMovies(){
+    private fun fetchNowPlayingMovies() {
         _uiNowPlaying.value = MovieListUiState(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -47,7 +47,7 @@ class MovieListViewModel(
                 if (response.isSuccessful) {
                     val movies = response.body()?.results
                     if (movies != null) {
-                        val movieUiDataList = movies.map{movieDto ->
+                        val movieUiDataList = movies.map { movieDto ->
                             MovieUiData(
                                 id = movieDto.id,
                                 title = movieDto.title,
@@ -61,9 +61,9 @@ class MovieListViewModel(
                     _uiNowPlaying.value = MovieListUiState(isError = true)
                     Log.d("MovieListViewModel", "Request Error :: ${response.errorBody()}")
                 }
-            } catch (ex: Exception ){
+            } catch (ex: Exception) {
                 ex.printStackTrace()
-                if(ex is UnknownHostException){
+                if (ex is UnknownHostException) {
                     _uiNowPlaying.value = MovieListUiState(
                         isError = true,
                         errorMessage = "No internet connection"
@@ -76,50 +76,114 @@ class MovieListViewModel(
         }
     }
 
-    private fun fetchTopRatedMovies(){
+    private fun fetchTopRatedMovies() {
+        _uiTopRated.value = MovieListUiState(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
-            val response = listService.getTopRatedMovies()
-            if (response.isSuccessful) {
-                val movies = response.body()?.results
-                if (movies != null) {
-                    _uiTopRated.value = movies
+            try {
+                val response = listService.getTopRatedMovies()
+                if (response.isSuccessful) {
+                    val movies = response.body()?.results
+                    if (movies != null) {
+                        val movieUiDataList = movies.map { movieDto ->
+                            MovieUiData(
+                                id = movieDto.id,
+                                title = movieDto.title,
+                                overview = movieDto.overview,
+                                image = movieDto.posterFullPath
+                            )
+                        }
+                        _uiTopRated.value = MovieListUiState(list = movieUiDataList)
+                    }
+                } else {
+                    Log.d("MovieListViewModel", "Request Error :: ${response.errorBody()}")
                 }
-            } else {
-                Log.d("MovieListViewModel", "Request Error :: ${response.errorBody()}")
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                if (ex is UnknownHostException) {
+                    _uiTopRated.value = MovieListUiState(
+                        isError = true,
+                        errorMessage = "No internet connection"
+                    )
+                } else {
+                    _uiTopRated.value = MovieListUiState(isError = true)
+                }
             }
         }
     }
 
-    private fun fetchUpcomingMovies(){
+    private fun fetchUpcomingMovies() {
+        _uiUpcoming.value = MovieListUiState(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
-            val response = listService.getUpcomingMovies()
-            if (response.isSuccessful) {
-                val movies = response.body()?.results
-                if (movies != null) {
-                    _uiUpcoming.value = movies
+            try {
+                val response = listService.getUpcomingMovies()
+                if (response.isSuccessful) {
+                    val movies = response.body()?.results
+                    if (movies != null) {
+                        val movieUiDataList = movies.map { movieDto ->
+                            MovieUiData(
+                                id = movieDto.id,
+                                title = movieDto.title,
+                                overview = movieDto.overview,
+                                image = movieDto.posterFullPath
+                            )
+                        }
+                        _uiUpcoming.value = MovieListUiState(list = movieUiDataList)
+                    }
+                } else {
+                    Log.d("MovieListViewModel", "Request Error :: ${response.errorBody()}")
                 }
-            } else {
-                Log.d("MovieListViewModel", "Request Error :: ${response.errorBody()}")
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                if (ex is UnknownHostException) {
+                    _uiUpcoming.value = MovieListUiState(
+                        isError = true,
+                        errorMessage = "No internet connection"
+                    )
+                } else {
+                    _uiUpcoming.value = MovieListUiState(isError = true)
+                }
             }
         }
     }
 
-    private fun fetchPopularMovies(){
+    private fun fetchPopularMovies() {
+        _uiPopular.value = MovieListUiState(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
-            val response = listService.getPopularMovies()
-            if (response.isSuccessful) {
-                val movies = response.body()?.results
-                if (movies != null) {
-                    _uiPopular.value = movies
+            try {
+                val response = listService.getPopularMovies()
+                if (response.isSuccessful) {
+                    val movies = response.body()?.results
+                    if (movies != null) {
+                        val movieUiDataList = movies.map { movieDto ->
+                            MovieUiData(
+                                id = movieDto.id,
+                                title = movieDto.title,
+                                overview = movieDto.overview,
+                                image = movieDto.posterFullPath
+                            )
+                        }
+                        _uiPopular.value = MovieListUiState(list = movieUiDataList)
+                    }
+                } else {
+                    Log.d("MovieListViewModel", "Request Error :: ${response.errorBody()}")
                 }
-            } else {
-                Log.d("MovieListViewModel", "Request Error :: ${response.errorBody()}")
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                if (ex is UnknownHostException) {
+                    _uiPopular.value = MovieListUiState(
+                        isError = true,
+                        errorMessage = "No internet connection"
+                    )
+                } else {
+                    _uiPopular.value = MovieListUiState(isError = true)
+                }
             }
+
         }
     }
 
     companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory{
+        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
                 val listService = RetrofitClient.retrofitInstance.create(ListService::class.java)
