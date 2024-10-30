@@ -3,7 +3,6 @@ package com.devspacecinenow.list.data.remote
 import android.accounts.NetworkErrorException
 import com.devspacecinenow.common.data.local.MovieCategory
 import com.devspacecinenow.common.data.model.Movie
-import com.devspacecinenow.common.data.remote.model.MovieResponse
 
 class MovieListRemoteDataSource(
     private val listService: ListService

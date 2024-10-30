@@ -1,13 +1,12 @@
 package com.devspacecinenow.list.data
 
 import com.devspacecinenow.common.data.model.Movie
-import com.devspacecinenow.common.data.remote.model.MovieResponse
-import com.devspacecinenow.list.data.local.MovieListLocalDataSource
+import com.devspacecinenow.list.data.local.LocalDataSource
 import com.devspacecinenow.list.data.remote.MovieListRemoteDataSource
 
 
 class MovieListRepository(
-    private val local: MovieListLocalDataSource,
+    private val local: LocalDataSource,
     private val remote: MovieListRemoteDataSource
 ) {
 
