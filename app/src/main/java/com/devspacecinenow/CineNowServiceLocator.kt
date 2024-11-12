@@ -5,9 +5,11 @@ import androidx.room.Room
 import com.devspacecinenow.common.data.local.CineNowDataBase
 import com.devspacecinenow.common.data.remote.RetrofitClient
 import com.devspacecinenow.list.data.MovieListRepository
+import com.devspacecinenow.list.data.local.LocalDataSource
 import com.devspacecinenow.list.data.local.MovieListLocalDataSource
 import com.devspacecinenow.list.data.remote.ListService
 import com.devspacecinenow.list.data.remote.MovieListRemoteDataSource
+import com.devspacecinenow.list.data.remote.RemoteDataSource
 
 object CineNowServiceLocator {
 
@@ -18,10 +20,8 @@ object CineNowServiceLocator {
         ).build()
 
         val listService = RetrofitClient.retrofitInstance.create(ListService::class.java)
-
-        val localDataSource: MovieListLocalDataSource = MovieListLocalDataSource(db.getMovieDao())
-
-        val remoteDataSource: MovieListRemoteDataSource = MovieListRemoteDataSource(listService)
+        val localDataSource: LocalDataSource = MovieListLocalDataSource(db.getMovieDao())
+        val remoteDataSource: RemoteDataSource = MovieListRemoteDataSource(listService)
 
         return MovieListRepository(
             local = localDataSource,
