@@ -3,9 +3,10 @@ package com.devspacecinenow.list.data
 import com.devspacecinenow.common.data.model.Movie
 import com.devspacecinenow.list.data.local.LocalDataSource
 import com.devspacecinenow.list.data.remote.RemoteDataSource
+import javax.inject.Inject
 
 
-class MovieListRepository(
+class MovieListRepository @Inject constructor(
     private val local: LocalDataSource,
     private val remote: RemoteDataSource
 ) {
