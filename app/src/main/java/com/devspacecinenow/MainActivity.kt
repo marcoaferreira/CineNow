@@ -16,8 +16,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val listViewModel by viewModels<MovieListViewModel> ()
-    private val detailViewModel by viewModels<MovieDetailViewModel> { MovieDetailViewModel.Factory }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -28,10 +26,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    CineNowApp(
-                        listViewModel = listViewModel,
-                        detailViewModel = detailViewModel
-                    )
+                    CineNowApp()
                 }
             }
         }
