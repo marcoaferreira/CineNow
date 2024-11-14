@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.devspacecinenow.common.data.remote.model.MovieDto
@@ -31,7 +32,7 @@ import com.devspacecinenow.ui.theme.CineNowTheme
 fun MovieDetailScreen(
     movieId: String,
     navHostController: NavHostController,
-    detailViewModel: MovieDetailViewModel
+    detailViewModel: MovieDetailViewModel = hiltViewModel()
 ) {
     val movieDto by detailViewModel.uiMovie.collectAsState()
     detailViewModel.fetchMovieDetail(movieId)
@@ -45,7 +46,6 @@ fun MovieDetailScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = {
-                    detailViewModel.cleanMovieId()
                     navHostController.popBackStack()
                 }) {
                     Icon(
